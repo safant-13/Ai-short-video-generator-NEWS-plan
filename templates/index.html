@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsFlash | AI News Shorts Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .bg-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+
+        .card {
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient min-h-screen font-sans text-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-10">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-broadcast-tower text-blue-400 text-3xl"></i>
+                    <h1 class="text-3xl font-bold text-white">NewsFlash</h1>
+                </div>
+                <div class="text-sm text-gray-400">AI News Shorts Generator</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Panel: Controls -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-800 bg-opacity-50 rounded-xl p-6 shadow-lg border border-gray-700">
+                    <h2 class="text-xl font-semibold mb-6 text-blue-400">Generate News Shorts</h2>
+
+                    <!-- Generator Form -->
+                    <form id="generatorForm" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">News Topic (Optional)</label>
+                            <input id="topicInput" type="text" placeholder="e.g., AI in healthcare, SpaceX launch"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">News Category</label>
+                            <div class="flex flex-wrap gap-2" id="categorySelector">
+                                <button class="category-pill px-3 py-1 rounded-full bg-gray-700 text-sm active"
+                                    data-category="technology">Technology</button>
+                                <button class="category-pill px-3 py-1 rounded-full bg-gray-700 text-sm"
+                                    data-category="business">Business</button>
+                                <button class="category-pill px-3 py-1 rounded-full bg-gray-700 text-sm"
+                                    data-category="health">Health</button>
+                                <button class="category-pill px-3 py-1 rounded-full bg-gray-700 text-sm"
+                                    data-category="science">Science</button>
+                                <button class="category-pill px-3 py-1 rounded-full bg-gray-700 text-sm"
+                                    data-category="sports">Sports</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Voice Style</label>
+                            <select id="voiceSelect"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+                                <option value="21m00Tcm4TlvDq8ikWAM">News Anchor (Male)</option>
+                                <option value="EXAVITQu4vr4xnSDxMaL">News Anchor (Female)</option>
+                                <option value="AZnzlk1XvdvUeBnXmlld">Dynamic Reporter</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Image Source</label>
+                            <div class="grid grid-cols-3 gap-2" id="imageSourceSelector">
+                                <div class="image-option p-2 border border-gray-700 rounded text-center selected"
+                                    data-source="unsplash">
+                                    <i class="fas fa-camera mb-1"></i>
+                                    <div class="text-xs">Unsplash</div>
+                                </div>
+                                <div class="image-option p-2 border border-gray-700 rounded text-center"
+                                    data-source="ai">
+                                    <i class="fas fa-robot mb-1"></i>
+                                    <div class="text-xs">AI Generated</div>
+                                </div>
+                                <div class="image-option p-2 border border-gray-700 rounded text-center"
+                                    data-source="custom">
+                                    <i class="fas fa-upload mb-1"></i>
+                                    <div class="text-xs">Upload</div>
+                                </div>
+                            </div>
+                            <div id="customImageUpload" class="mt-2 hidden">
+                                <input type="file" id="imageUpload" class="hidden" accept="image/*">
+                                <button id="uploadTrigger" class="w-full py-1 px-2 bg-gray-700 rounded text-sm">Select
+                                    Image</button>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3 pt-2">
+                            <button id="startButton" type="button"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                                <i class="fas fa-play"></i><span>Generate</span>
+                            </button>
+                            <button id="stopButton" type="button" disabled
+                                class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors opacity-50 flex items-center justify-center space-x-2">
+                                <i class="fas fa-stop"></i><span>Stop</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Process Status -->
+                    <div class="mt-8">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-md font-medium text-gray-300">Process Status</h3>
+                            <span id="statusText" class="text-sm text-blue-400">Ready</span>
+                        </div>
+                        <div class="relative h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="progressBar" class="absolute top-0 left-0 h-full bg-blue-500 progress-bar w-0">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1 mt-3">
+                            <div id="step1"
+                                class="step-indicator rounded-md p-2 bg-gray-700 bg-opacity-50 text-xs text-center text-gray-400">
+                                <i class="fas fa-newspaper mb-1"></i>
+                                <div>Fetch News</div>
+                            </div>
+                            <div id="step2"
+                                class="step-indicator rounded-md p-2 bg-gray-700 bg-opacity-50 text-xs text-center text-gray-400">
+                                <i class="fas fa-feather-alt mb-1"></i>
+                                <div>Script</div>
+                            </div>
+                            <div id="step3"
+                                class="step-indicator rounded-md p-2 bg-gray-700 bg-opacity-50 text-xs text-center text-gray-400">
+                                <i class="fas fa-microphone mb-1"></i>
+                                <div>Audio</div>
+                            </div>
+                            <div id="step4"
+                                class="step-indicator rounded-md p-2 bg-gray-700 bg-opacity-50 text-xs text-center text-gray-400">
+                                <i class="fas fa-image mb-1"></i>
+                                <div>Image</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Output and Preview -->
+            <div class="lg:col-span-2">
+                <div id="currentProject"
+                    class="bg-gray-800 bg-opacity-50 rounded-xl p-6 shadow-lg border border-gray-700 mb-6 hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-blue-400">Current News Short</h2>
+                        <span id="topicBadge"
+                            class="bg-blue-600 bg-opacity-30 text-blue-300 rounded-full px-3 py-1 text-xs">Topic</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Left side - Image/Video -->
+                        <div class="rounded-lg overflow-hidden border border-gray-700">
+                            <img id="newsImage" src="/api/placeholder/400/320" alt="News image"
+                                class="w-full h-64 object-cover">
+                            <video id="preview-video" controls class="w-full h-64 object-cover" style="display: none;">
+                                <source type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <!-- Right side - Audio and Script -->
+                        <div class="space-y-4">
+                            <div class="bg-gray-900 bg-opacity-40 rounded-lg p-4 border border-gray-700">
+                                <h3 class="text-sm font-medium text-gray-300 mb-2">Audio Preview</h3>
+                                <audio id="audioPlayer" controls class="w-full" src="">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                            <div class="bg-gray-900 bg-opacity-40 rounded-lg p-4 border border-gray-700">
+                                <h3 class="text-sm font-medium text-gray-300 mb-2">Script</h3>
+                                <div id="scriptContent" class="text-sm text-gray-300 h-28 overflow-y-auto">
+                                    Script will appear here once generated.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-6 space-x-3">
+                        <button id="downloadAllBtn"
+                            class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center space-x-2">
+                            <i class="fas fa-download"></i><span>Download All Files</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Generations -->
+                <div class="bg-gray-800 bg-opacity-50 rounded-xl p-6 shadow-lg border border-gray-700">
+                    <h2 class="text-xl font-semibold mb-6 text-blue-400">Recent Generations</h2>
+                    <div id="recentGenerations" class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-96">
+                        <div id="emptyState" class="col-span-2 py-10 text-center">
+                            <i class="fas fa-folder-open text-gray-600 text-4xl mb-3"></i>
+                            <p class="text-gray-400">No recent generations found. Start creating news shorts!</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button id="exportMP4Btn"
+                                class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-3 rounded-lg transition-colors flex items-center space-x-2">
+                                <i class="fas fa-film"></i><span>Export MP4</span>
+                            </button>
+                            <button data-platform="twitter"
+                                class="share-btn bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors">
+                                <i class="fab fa-twitter"></i>
+                            </button>
+                            <button data-platform="instagram"
+                                class="share-btn bg-pink-600 hover:bg-pink-700 text-white p-2 rounded-lg transition-colors">
+                                <i class="fab fa-instagram"></i>
+                            </button>
+                            <button data-platform="tiktok"
+                                class="share-btn bg-black hover:bg-gray-900 text-white p-2 rounded-lg transition-colors">
+                                <i class="fab fa-tiktok"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="mt-8">
+                    <h3 class="text-md font-medium text-gray-300 mb-3">Activity Log</h3>
+                    <div id="activityLog"
+                        class="bg-gray-900 bg-opacity-50 rounded-lg p-3 h-32 overflow-y-auto text-xs text-gray-400 space-y-1">
+                        <div>System ready. Waiting to generate news shorts...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables
+        let currentFiles = {};
+        let generationHistory = [];
+        let refreshIntervalId = null;
+
+        // DOM Elements
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const activityLog = document.getElementById('activityLog');
+        const currentProject = document.getElementById('currentProject');
+        const topicBadge = document.getElementById('topicBadge');
+        const newsImage = document.getElementById('newsImage');
+        const previewVideo = document.getElementById('preview-video');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const scriptContent = document.getElementById('scriptContent');
+        const recentGenerations = document.getElementById('recentGenerations');
+        const emptyState = document.getElementById('emptyState');
+        const stepIndicators = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3'),
+            document.getElementById('step4')
+        ];
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const voiceSelect = document.getElementById('voiceSelect');
+
+        // Functions
+        function showImage(imagePath) {
+            newsImage.src = imagePath;
+            newsImage.style.display = 'block';
+            previewVideo.style.display = 'none';
+            previewVideo.pause();
+        }
+
+        function showVideo(videoPath) {
+            console.log("Showing video at:", videoPath);
+            newsImage.style.display = 'none';
+            previewVideo.src = videoPath;
+            previewVideo.style.display = 'block';
+            previewVideo.load();
+            previewVideo.play().catch(e => console.log('Autoplay prevented:', e));
+        }
+
+        function updatePreview(progressData) {
+            if (progressData.files && Object.keys(progressData.files).length > 0) {
+                currentFiles = progressData.files;
+                currentProject.classList.remove('hidden');
+
+                if (progressData.topic) {
+                    topicBadge.textContent = progressData.topic;
+                }
+
+                // Prioritize video preview if available
+                if (progressData.files.video) {
+                    showVideo(`/files/${progressData.files.video}`);
+                } else if (progressData.files.image) {
+                    showImage(`/files/${progressData.files.image}`);
+                }
+
+                if (progressData.files.audio) {
+                    audioPlayer.src = `/files/${progressData.files.audio}`;
+                }
+
+                if (progressData.files.script) {
+                    fetch(`/files/${progressData.files.script}`)
+                        .then(response => response.text())
+                        .then(text => {
+                            scriptContent.textContent = text;
+                        });
+                }
+
+                if (progressData.step === 'Done' && !generationHistory.some(item => item.topic === progressData.topic)) {
+                    const historyItem = {
+                        topic: progressData.topic,
+                        files: { ...progressData.files },
+                        timestamp: new Date().toISOString()
+                    };
+                    generationHistory.unshift(historyItem);
+                    updateGenerationHistory();
+                }
+            }
+        }
+
+        function updateStepIndicator(step) {
+            const steps = { 'Fetching News': 0, 'Script': 1, 'Video': 2, 'Done': 3 };
+            const currentStepIndex = steps[step] !== undefined ? steps[step] : -1;
+
+            stepIndicators.forEach((indicator, index) => {
+                if (index < currentStepIndex) {
+                    indicator.classList.remove('bg-gray-700', 'bg-blue-600', 'text-gray-400');
+                    indicator.classList.add('bg-green-600', 'text-white');
+                } else if (index === currentStepIndex) {
+                    indicator.classList.remove('bg-gray-700', 'bg-green-600', 'text-gray-400');
+                    indicator.classList.add('bg-blue-600', 'text-white');
+                } else {
+                    indicator.classList.remove('bg-blue-600', 'bg-green-600', 'text-white');
+                    indicator.classList.add('bg-gray-700', 'text-gray-400');
+                }
+            });
+
+            if (step === 'Done') {
+                progressBar.style.width = '100%';
+            } else if (currentStepIndex >= 0) {
+                progressBar.style.width = `${(currentStepIndex / 3) * 100}%`;
+            } else {
+                progressBar.style.width = '0%';
+            }
+        }
+
+        function updateGenerationHistory() {
+            if (generationHistory.length > 0) {
+                emptyState.style.display = 'none';
+            } else {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            const children = Array.from(recentGenerations.children);
+            children.forEach(child => {
+                if (child !== emptyState) recentGenerations.removeChild(child);
+            });
+
+            generationHistory.slice(0, 10).forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card bg-gray-900 bg-opacity-40 rounded-lg p-4 border border-gray-700 hover:border-blue-500';
+                const date = new Date(item.timestamp);
+                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                card.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-16 h-16 bg-gray-800 rounded overflow-hidden flex-shrink-0">
+                            <img src="${item.files.image ? `/files/${item.files.image}` : '/api/placeholder/64/64'}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-medium text-white truncate">${item.topic}</h4>
+                            <p class="text-xs text-gray-400 mt-1">${formattedDate}</p>
+                            <div class="flex space-x-2 mt-2">
+                                <button class="load-btn text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded" data-index="${index}">Load</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                recentGenerations.appendChild(card);
+
+                card.querySelector('.load-btn').addEventListener('click', function () {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const item = generationHistory[index];
+                    currentFiles = { ...item.files };
+                    currentProject.classList.remove('hidden');
+                    topicBadge.textContent = item.topic;
+                    if (item.files.video) {
+                        showVideo(`/files/${item.files.video}`);
+                    } else if (item.files.image) {
+                        showImage(`/files/${item.files.image}`);
+                    }
+                    audioPlayer.src = `/files/${item.files.audio}`;
+                    fetch(`/files/${item.files.script}`)
+                        .then(response => response.text())
+                        .then(text => {
+                            scriptContent.textContent = text;
+                        });
+                });
+            });
+        }
+
+        function addLogMessage(message) {
+            const logEntry = document.createElement('div');
+            logEntry.textContent = message;
+            activityLog.appendChild(logEntry);
+            activityLog.scrollTop = activityLog.scrollHeight;
+            while (activityLog.children.length > 50) {
+                activityLog.removeChild(activityLog.firstChild);
+            }
+        }
+
+        function fetchProgress() {
+            fetch('/progress')
+                .then(response => response.json())
+                .then(data => {
+                    statusText.textContent = data.message;
+                    addLogMessage(`[${new Date().toLocaleTimeString()}] ${data.message}`);
+                    updateStepIndicator(data.step);
+                    updatePreview(data);
+
+                    if (data.step === 'Done' || data.message.startsWith('Error')) {
+                        stopPolling();
+                        startButton.disabled = false;
+                        stopButton.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching progress:', error);
+                    addLogMessage(`Error: Could not fetch progress update`);
+                });
+        }
+
+        function startPolling() {
+            refreshIntervalId = setInterval(fetchProgress, 1000);
+        }
+
+        function stopPolling() {
+            if (refreshIntervalId) {
+                clearInterval(refreshIntervalId);
+                refreshIntervalId = null;
+            }
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', function () {
+            const topic = document.getElementById('topicInput').value;
+            const formData = new FormData();
+            if (topic) {
+                formData.append('topic', topic);
+            }
+            fetch('/start', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    addLogMessage(`Started generation process`);
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+                    startPolling();
+                })
+                .catch(error => {
+                    console.error('Error starting process:', error);
+                    addLogMessage(`Error: Could not start generation process`);
+                });
+        });
+
+        stopButton.addEventListener('click', function () {
+            fetch('/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    addLogMessage(`Stopping generation process...`);
+                    stopButton.disabled = true;
+                })
+                .catch(error => {
+                    console.error('Error stopping process:', error);
+                    addLogMessage(`Error: Could not stop generation process`);
+                });
+        });
+
+        downloadAllBtn.addEventListener('click', function () {
+            if (Object.keys(currentFiles).length === 0) {
+                addLogMessage(`No files available to download`);
+                return;
+            }
+            Object.entries(currentFiles).forEach(([key, path]) => {
+                const link = document.createElement('a');
+                link.href = `/files/${path}`;
+                link.download = path.split('/').pop();
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            addLogMessage(`Downloading all files...`);
+        });
+
+        document.querySelectorAll('.category-pill').forEach(pill => {
+            pill.addEventListener('click', function () {
+                document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                const category = this.getAttribute('data-category');
+                fetch('/update_category', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `category=${category}`
+                })
+                    .then(response => response.json())
+                    .then(data => addLogMessage(`Category updated to ${category}`));
+            });
+        });
+
+        document.querySelectorAll('.image-option').forEach(option => {
+            option.addEventListener('click', function () {
+                document.querySelectorAll('.image-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                const source = this.getAttribute('data-source');
+                document.getElementById('customImageUpload').classList.toggle('hidden', source !== 'custom');
+            });
+        });
+
+        document.getElementById('uploadTrigger').addEventListener('click', function () {
+            document.getElementById('imageUpload').click();
+        });
+
+        document.getElementById('imageUpload').addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const formData = new FormData();
+                formData.append('image', file);
+                fetch('/upload_image', { method: 'POST', body: formData })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.path) {
+                            addLogMessage(`Image uploaded: ${file.name}`);
+                            window.customImagePath = data.path;
+                        }
+                    });
+            }
+        });
+
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const platform = this.getAttribute('data-platform');
+                if (Object.keys(currentFiles).length === 0) {
+                    addLogMessage(`No content available to share to ${platform}`);
+                    return;
+                }
+                const formData = new FormData();
+                formData.append('platform', platform);
+                formData.append('image', currentFiles.image || '');
+                formData.append('audio', currentFiles.audio || '');
+                formData.append('script', currentFiles.script || '');
+                fetch('/share', { method: 'POST', body: formData })
+                    .then(response => response.json())
+                    .then(data => alert('Content prepared for sharing! ' + data.message))
+                    .catch(error => {
+                        console.error('Error sharing:', error);
+                        addLogMessage(`Error sharing to ${platform}`);
+                    });
+            });
+        });
+
+        document.getElementById('exportMP4Btn').addEventListener('click', function () {
+            if (!currentFiles.image || !currentFiles.audio) {
+                addLogMessage('Both image and audio required to create MP4');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('image', currentFiles.image);
+            formData.append('audio', currentFiles.audio);
+            addLogMessage('Creating MP4 file...');
+            fetch('/export_mp4', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.path) {
+                        addLogMessage('MP4 created successfully!');
+                        const link = document.createElement('a');
+                        link.href = `/files/${data.path}`;
+                        link.download = data.path.split('/').pop();
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        addLogMessage(`Error: ${data.error}`);
+                    }
+                });
+        });
+
+        // Initialize
+        fetchProgress();
+        updateStepIndicator('Idle');
+    </script>
+</body>
+
+</html>
