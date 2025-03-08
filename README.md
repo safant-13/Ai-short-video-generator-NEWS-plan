@@ -83,10 +83,7 @@ The app uses config/settings.json to store API keys and settings. If the file do
         "twitter_access_secret": ""
     },
     "settings": {
-        "content_niche
-
-
-": "technology",
+        "content_niche": "technology",
         "voice_id": "21m00Tcm4TlvDq8ikWAM",
         "output_directory": "./media"
     }
